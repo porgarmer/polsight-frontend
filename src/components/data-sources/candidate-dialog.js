@@ -1,3 +1,4 @@
+// src/components/data-sources/candidate-dialog.js
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -13,6 +14,7 @@ import {
   SelectItem
 } from "@/components/ui/select";
 import { Upload } from "lucide-react";
+import { createCandidates, updateCandidate } from "@/services/candidates";
 
 const ACCEPTED_MIME = new Set([
   "image/jpeg",
@@ -26,55 +28,58 @@ export default function CandidateDialog({
   onOpenChange,
   initialValue,
   familyGroups,
-  relatedCandidates,
-  onSave
+  relatedCandidates, // unused for now
+  onRefresh
 }) {
   const defaults = useMemo(
     () => ({
       id: initialValue?.id || null,
       name: initialValue?.name || "",
-      familyGroup: initialValue?.familyGroup || "",
-      relatedCandidate: initialValue?.relatedCandidate || "",
-      // keep your existing fields for the list card
-      positionsRan: initialValue?.positionsRan || "Mayor (2019-2022), Congressman (2025)",
-      relatedCandidatesText: initialValue?.relatedCandidates || "Chan, Cindi",
-      imageUrl: initialValue?.imageUrl || "" // existing stored image url (if any)
+      family_group:
+        initialValue?.family_group ??
+        initialValue?.familyGroup ??
+        "",
+      profile:
+        initialValue?.profile ??
+        initialValue?.imageUrl ??
+        ""
     }),
     [initialValue]
   );
 
   const [form, setForm] = useState(defaults);
+  const [nameError, setNameError] = useState("");
+
   const [isDragging, setIsDragging] = useState(false);
-
-  // Holds the actual picked file (for upload later)
   const [file, setFile] = useState(null);
-
-  // Holds an object URL used for preview
   const [previewUrl, setPreviewUrl] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const inputRef = useRef(null);
 
+  // reset on open (fix stale values)
   useEffect(() => {
-    setForm(defaults);
-    setFile(null);
+    if (!open) return;
 
-    // reset preview when dialog opens/changes candidate
+    setForm(defaults);
+    setNameError("");
+
+    setFile(null);
     setPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return "";
     });
-  }, [defaults]);
+  }, [open, defaults]);
 
-  // Cleanup preview URL on unmount
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [previewUrl]);
 
   function setField(k, v) {
     setForm((p) => ({ ...p, [k]: v }));
+    if (k === "name") setNameError("");
   }
 
   function openFilePicker() {
@@ -85,14 +90,12 @@ export default function CandidateDialog({
     if (!f) return;
 
     if (!ACCEPTED_MIME.has(f.type)) {
-      // you can swap this to a toast later
       alert("Please upload an image file (JPG, PNG, WEBP, GIF).");
       return;
     }
 
     setFile(f);
 
-    // create preview URL
     const url = URL.createObjectURL(f);
     setPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
@@ -105,7 +108,6 @@ export default function CandidateDialog({
     acceptFile(f);
   }
 
-  // Drag + drop handlers
   function onDragEnter(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -125,51 +127,50 @@ export default function CandidateDialog({
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
     const f = e.dataTransfer.files?.[0];
     acceptFile(f);
   }
 
-  function submit() {
-    // You now have both:
-    // - file (the uploaded file object)
-    // - previewUrl (for UI)
-    // When wiring backend, send `file` in FormData.
-    onSave({
-      id: form.id,
-      name: form.name,
-      familyGroup: form.familyGroup,
-      relatedCandidate: form.relatedCandidate,
-      positionsRan: form.positionsRan,
-      relatedCandidates: form.relatedCandidatesText,
-      // for list display right now:
-      imageUrl: previewUrl || form.imageUrl,
-      // for actual upload later:
-      file
-    });
+  async function submit() {
+    if (!form.name.trim()) {
+      setNameError("Candidate name is required.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const fd = new FormData();
+      fd.append("name", form.name.trim());
+      fd.append("family_group", (form.family_group || "").toLowerCase());
+
+      // only send profile if user picked a new file
+      if (file instanceof File) {
+        fd.append("profile", file, file.name);
+      }
+
+      // ✅ EDIT vs CREATE
+      if (form.id) {
+        await updateCandidate(form.id, fd);
+      } else {
+        await createCandidates(fd);
+      }
+
+      await onRefresh();
+      onOpenChange(false);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  const shownImage = previewUrl || form.imageUrl;
+  const shownImage = previewUrl || form.profile;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-       className="
-        max-w-[650px]
-        p-0
-        duration-200
-
-        data-[state=open]:animate-in
-        data-[state=closed]:animate-out
-        data-[state=open]:fade-in-0
-        data-[state=closed]:fade-out-0
-        data-[state=open]:slide-in-from-bottom-5
-        data-[state=closed]:slide-out-to-bottom-5
-      "
-
-      >
+      <DialogContent className="max-w-[650px] p-0">
         <div className="rounded-xl bg-slate-50 p-10">
-          {/* Avatar preview (shows uploaded picture if present) */}
           <div className="flex flex-col items-center">
             <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-slate-200">
               {shownImage ? (
@@ -181,17 +182,18 @@ export default function CandidateDialog({
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <Upload className="h-12 w-12 text-slate-600" />
+                  <Upload className="h-10 w-10 text-slate-600" />
                 </div>
               )}
             </div>
 
-            {/* Dropzone */}
             <div
               className={[
                 "mt-6 w-full max-w-[520px] rounded-lg border border-dashed bg-white p-6 text-center",
                 "transition-colors",
-                isDragging ? "border-emerald-500 bg-emerald-50" : "border-slate-300"
+                isDragging
+                  ? "border-emerald-500 bg-emerald-50"
+                  : "border-slate-300"
               ].join(" ")}
               onClick={openFilePicker}
               onDragEnter={onDragEnter}
@@ -235,25 +237,27 @@ export default function CandidateDialog({
             </div>
           </div>
 
-          {/* Form */}
           <div className="mt-10 space-y-6">
             <div className="space-y-2">
               <Label>Candidate Name</Label>
               <Input
                 value={form.name}
                 onChange={(e) => setField("name", e.target.value)}
-                placeholder="Cindi, Chan"
+                required
               />
+              {nameError ? (
+                <div className="text-xs text-red-600">{nameError}</div>
+              ) : null}
             </div>
 
             <div className="space-y-2">
               <Label>Family Group</Label>
               <Select
-                value={form.familyGroup}
-                onValueChange={(v) => setField("familyGroup", v)}
+                value={form.family_group}
+                onValueChange={(v) => setField("family_group", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Cindi, Chan" />
+                  <SelectValue placeholder="Select family group" />
                 </SelectTrigger>
                 <SelectContent>
                   {familyGroups.map((g) => (
@@ -265,35 +269,19 @@ export default function CandidateDialog({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Related Candidates</Label>
-              <Select
-                value={form.relatedCandidate}
-                onValueChange={(v) => setField("relatedCandidate", v)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Cindi, Chan" />
-                </SelectTrigger>
-                <SelectContent>
-                  {relatedCandidates.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="flex justify-center gap-6 pt-2">
               <Button
                 onClick={submit}
-                className="w-[180px] bg-emerald-600 hover:bg-emerald-700"
+                disabled={submitting}
+                className="w-[180px] bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60"
               >
-                Save
+                {submitting ? "Saving..." : "Save"}
               </Button>
+
               <Button
                 onClick={() => onOpenChange(false)}
-                className="w-[180px] bg-[#E76F51] hover:bg-[#D9684C]"
+                disabled={submitting}
+                className="w-[180px] bg-[#E76F51] hover:bg-[#D9684C] disabled:opacity-60"
               >
                 Cancel
               </Button>

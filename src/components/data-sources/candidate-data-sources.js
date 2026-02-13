@@ -1,46 +1,59 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import CandidateCard from "./candidate-card";
 import CandidateDialog from "./candidate-dialog";
+import VoterDataTab from "./voter-data-tab";
+import { getCandidates, deleteCandidate } from "@/services/candidates";
 
-const MOCK_CANDIDATES = [
-  {
-    id: 1,
-    name: "Chan, Ahong",
-    positionsRan: "Mayor (2019-2022), Congressman (2025)",
-    relatedCandidates: "Chan, Cindi",
-    imageUrl:
-      "https://placehold.co/220x220/png?text=Holy+Moly"
-  },
-  {
-    id: 2,
-    name: "Chan, Ahong",
-    positionsRan: "Mayor (2019-2022), Congressman (2025)",
-    relatedCandidates: "Chan, Cindi",
-    imageUrl:
-      "https://placehold.co/220x220/png?text=Holy+Moly"
-  },
-  {
-    id: 3,
-    name: "Chan, Ahong",
-    positionsRan: "Mayor (2019-2022), Congressman (2025)",
-    relatedCandidates: "Chan, Cindi",
-    imageUrl:
-      "https://placehold.co/220x220/png?text=Holy+Moly"
-  }
-];
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction
+} from "@/components/ui/alert-dialog";
 
 export default function CandidateDataSources() {
   const [tab, setTab] = useState("candidates");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [candidates, setCandidates] = useState(MOCK_CANDIDATES);
 
-  const familyGroups = useMemo(() => ["Cindi, Chan"], []);
+  const [candidates, setCandidates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+
+  // delete confirmation state
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const familyGroups = useMemo(() => ["Chan", "Radaza"], []);
   const relatedCandidates = useMemo(() => ["Cindi, Chan"], []);
+
+  const fetchCandidates = useCallback(async () => {
+    try {
+      setLoading(true);
+      setLoadError(null);
+      const res = await getCandidates();
+      setCandidates(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.log(err);
+      setLoadError(err);
+      setCandidates([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCandidates();
+  }, [fetchCandidates]);
 
   function onAddCandidate() {
     setEditing(null);
@@ -52,23 +65,32 @@ export default function CandidateDataSources() {
     setOpen(true);
   }
 
-  function onSave(payload) {
-    setCandidates((prev) => {
-      if (payload.id) {
-        return prev.map((x) => (x.id === payload.id ? payload : x));
-      }
-      const nextId = Math.max(0, ...prev.map((p) => p.id)) + 1;
-      return [{ ...payload, id: nextId }, ...prev];
-    });
-    setOpen(false);
-    setEditing(null);
+  // ✅ open confirm dialog
+  function onAskDelete(item) {
+    setDeleteTarget(item);
+    setDeleteOpen(true);
+  }
+
+  // ✅ confirm delete
+  async function onConfirmDelete() {
+    if (!deleteTarget?.id) return;
+
+    try {
+      setDeleting(true);
+      await deleteCandidate(deleteTarget.id);
+      await fetchCandidates();
+      setDeleteOpen(false);
+      setDeleteTarget(null);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
-    
     <div className="space-y-6">
       <Tabs value={tab} onValueChange={setTab}>
-        {/* tabs row */}
         <div className="flex items-center justify-between">
           <TabsList className="bg-transparent p-0">
             <TabsTrigger
@@ -95,14 +117,25 @@ export default function CandidateDataSources() {
           </Button>
 
           <div className="space-y-5">
-            {candidates.map((c) => (
-              <CandidateCard key={c.id} item={c} onEdit={onEditCandidate} />
-            ))}
+            {loading ? (
+              <div className="text-sm text-slate-500">Loading...</div>
+            ) : loadError ? (
+              <div className="text-sm text-red-600">Failed to load candidates.</div>
+            ) : (
+              candidates.map((c) => (
+                <CandidateCard
+                  key={c.id}
+                  item={c}
+                  onEdit={onEditCandidate}
+                  onDelete={onAskDelete}
+                />
+              ))
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="voter-data" className="space-y-5">
-          {/* as per your screenshot: just a tab header for now */}
+          <VoterDataTab />
         </TabsContent>
       </Tabs>
 
@@ -112,8 +145,35 @@ export default function CandidateDataSources() {
         initialValue={editing}
         familyGroups={familyGroups}
         relatedCandidates={relatedCandidates}
-        onSave={onSave}
+        onRefresh={fetchCandidates}
       />
+
+      {/* ✅ confirmation dialog */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete candidate?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete{" "}
+              <span className="font-medium text-slate-900">
+                {deleteTarget?.name || "this candidate"}
+              </span>
+              .
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onConfirmDelete}
+              disabled={deleting}
+              className="bg-orange-500 hover:bg-orange-600"
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
