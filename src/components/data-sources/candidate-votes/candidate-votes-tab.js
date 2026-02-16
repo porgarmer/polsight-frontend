@@ -15,15 +15,7 @@ import {
   SelectItem
 } from "@/components/ui/select";
 
-import ElectionResultsDialog from "./election-results-dialog";
 import CandidateVotesDialog from "./candidate-votes-dialog";
-
-const MOCK_ELECTION_RESULTS = Array.from({ length: 6 }).map((_, i) => ({
-  id: i + 1,
-  electionYear: 2025,
-  registered: 67,
-  voted: 67
-}));
 
 const MOCK_CANDIDATE_VOTES = Array.from({ length: 6 }).map((_, i) => ({
   id: i + 1,
@@ -117,42 +109,16 @@ function PaginationBar() {
   );
 }
 
-export default function VoterDataTab() {
+export default function CandidateVotesTab() {
   const electionYears = useMemo(() => ["2025", "2022", "2019", "2016"], []);
   const candidates = useMemo(() => ["Ahong Chan", "Cindi Chan"], []);
   const positions = useMemo(() => ["Mayor", "Vice Mayor", "Councilor"], []);
 
-  // tables state
-  const [electionResults, setElectionResults] = useState(MOCK_ELECTION_RESULTS);
   const [candidateVotes, setCandidateVotes] = useState(MOCK_CANDIDATE_VOTES);
-
-  // election results dialog state
-  const [erOpen, setErOpen] = useState(false);
-  const [erEditing, setErEditing] = useState(null);
 
   // candidate votes dialog state
   const [cvOpen, setCvOpen] = useState(false);
   const [cvEditing, setCvEditing] = useState(null);
-
-  function openAddElectionResults() {
-    setErEditing(null);
-    setErOpen(true);
-  }
-  function openEditElectionResults(row) {
-    setErEditing(row);
-    setErOpen(true);
-  }
-  function saveElectionResults(payload) {
-    setElectionResults((prev) => {
-      if (payload.id) {
-        return prev.map((x) => (x.id === payload.id ? payload : x));
-      }
-      const nextId = Math.max(0, ...prev.map((p) => p.id)) + 1;
-      return [{ ...payload, id: nextId }, ...prev];
-    });
-    setErOpen(false);
-    setErEditing(null);
-  }
 
   function openAddCandidateVotes() {
     setCvEditing(null);
@@ -176,100 +142,14 @@ export default function VoterDataTab() {
 
   return (
     <div className="space-y-14">
-      {/* Election Results */}
       <section className="space-y-4">
         <div className="space-y-3">
-          <h2 className="text-3xl font-semibold text-slate-900">
-            Election Results
-          </h2>
-
-          <Button
-            onClick={openAddElectionResults}
-            className="bg-emerald-600 hover:bg-emerald-700"
-          >
-            + Add Voter Data
-          </Button>
-        </div>
-
-        <TableShell>
-          <div className="w-full overflow-x-auto">
-            <table className="w-full border-collapse text-xs">
-              <thead className="border-b bg-slate-50 text-left text-slate-900">
-                <tr>
-                  <th className="px-4 py-3 font-semibold">Election Year</th>
-                  <th className="px-4 py-3 font-semibold">
-                    Number Of Registered Voters
-                  </th>
-                  <th className="px-4 py-3 font-semibold">
-                    Voters Who Actually Voted
-                  </th>
-                  <th className="px-4 py-3 font-semibold">Turnout Percentage</th>
-                  <th className="px-4 py-3 font-semibold">Turnout Volatility</th>
-                  <th className="px-4 py-3 font-semibold">
-                    Turnout Adjust Factor
-                  </th>
-                  <th className="px-4 py-3 font-semibold">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {electionResults.map((row) => {
-                  const turnoutPct = row.registered
-                    ? `${Math.round((row.voted / row.registered) * 100)}%`
-                    : "0%";
-
-                  // you can replace these later with your real computed values
-                  const turnoutVolatility = turnoutPct;
-                  const turnoutAdjustFactor = turnoutPct;
-
-                  return (
-                    <tr
-                      key={row.id}
-                      className="border-b bg-white transition-colors hover:bg-slate-100"
-                    >
-                      <td className="px-4 py-3 font-medium text-slate-700">
-                        {row.electionYear}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">
-                        {row.registered}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">{row.voted}</td>
-                      <td className="px-4 py-3 text-slate-700">{turnoutPct}</td>
-                      <td className="px-4 py-3 text-slate-700">
-                        {turnoutVolatility}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">
-                        {turnoutAdjustFactor}
-                      </td>
-                      <td className="px-4 py-3">
-                        <ActionCell
-                          onEdit={() => openEditElectionResults(row)}
-                          onDelete={() => {}}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <PaginationBar />
-        </TableShell>
-      </section>
-
-      {/* Candidate Votes */}
-      <section className="space-y-4">
-        <div className="space-y-3">
-          <h2 className="text-3xl font-semibold text-slate-900">
-            Candidate Votes
-          </h2>
 
           <Button
             onClick={openAddCandidateVotes}
-            className="bg-emerald-600 hover:bg-emerald-700"
+            className="bg-[#2A9D8F] hover:bg-[#1B7C70]"
           >
-            + Add Voter Data
+            + Add Candidate Votes
           </Button>
         </div>
 
@@ -321,9 +201,6 @@ export default function VoterDataTab() {
                     <td className="px-4 py-3 text-slate-700">
                       {String(row.isWinner)}
                     </td>
-                    <td className="px-4 py-3 text-slate-700">
-                      {String(row.isWinner)}
-                    </td>
 
                     {/* placeholders, same as screenshot */}
                     <td className="px-4 py-3 text-slate-700">67%</td>
@@ -345,15 +222,6 @@ export default function VoterDataTab() {
           <PaginationBar />
         </TableShell>
       </section>
-
-      {/* dialogs */}
-      <ElectionResultsDialog
-        open={erOpen}
-        onOpenChange={setErOpen}
-        initialValue={erEditing}
-        electionYears={electionYears}
-        onSave={saveElectionResults}
-      />
 
       <CandidateVotesDialog
         open={cvOpen}

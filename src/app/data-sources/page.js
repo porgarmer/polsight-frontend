@@ -1,5 +1,5 @@
-import CandidateDataSources from "@/components/data-sources/candidate-data-sources";
+import DataSources from "@/components/data-sources/data-sources";
 
 export default function DataSourcesPage() {
-  return <CandidateDataSources />;
+  return <DataSources />;
 }

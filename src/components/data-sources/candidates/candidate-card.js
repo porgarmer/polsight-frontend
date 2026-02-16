@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2Icon } from "lucide-react";
 
-export default function CandidateCard({ item, onEdit, onDelete }) {
+export default function CandidateCard({ item, onEdit, onDelete, showActions }) {
   return (
     <Card className="shadow-sm">
       <CardContent className="flex gap-5 p-5">
@@ -32,27 +32,29 @@ export default function CandidateCard({ item, onEdit, onDelete }) {
               Related candidates: {item.relatedCandidates}
             </div> */}
           </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEdit(item)}
-              className="shrink-0 text-slate-600 hover:bg-slate-100"
-              aria-label="Edit candidate"
-            >
-              <Pencil className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onDelete(item)}
-              className="shrink-0 text-slate-600 hover:bg-slate-100"
-              aria-label="Edit candidate"
-            >
-              <Trash2Icon className="h-5 w-5" />
-            </Button>
-          </div>
-
+          { showActions ?
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onEdit(item)}
+                className="shrink-0 text-slate-600 hover:bg-slate-100"
+                aria-label="Edit candidate"
+              >
+                <Pencil className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDelete(item)}
+                className="shrink-0 text-slate-600 hover:bg-slate-100"
+                aria-label="Edit candidate"
+              >
+                <Trash2Icon className="h-5 w-5" />
+              </Button>
+            </div>
+            : null
+          }
         </div>
       </CardContent>
     </Card>

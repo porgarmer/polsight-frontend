@@ -17,7 +17,7 @@ export default function ElectionResultsDialog({
   open,
   onOpenChange,
   initialValue,
-  electionYears = ["2025", "2022", "2019", "2016"],
+  electionYears = [2025, 2022, 2019, 2016],
   onSave
 }) {
   const defaults = useMemo(
@@ -31,16 +31,28 @@ export default function ElectionResultsDialog({
   );
 
   const [form, setForm] = useState(defaults);
+  const [registeredVotersError, setRegisteredVotersError] = useState("")
+  const [votersWhoActuallyVotedError, setVotersWhoActuallyVotedError] = useState("")
 
   useEffect(() => {
+    if (!open) return;
     setForm(defaults);
-  }, [defaults]);
+  }, [open, defaults]);
+
 
   function setField(k, v) {
     setForm((p) => ({ ...p, [k]: v }));
   }
 
   function submit() {
+    if (!form.registered){
+      setRegisteredVotersError("Number of regisetered voters are required.");
+      return;
+    }else if(!form.voted){
+      setVotersWhoActuallyVotedError("Number of actual voters required.");
+      return;
+    }
+
     onSave({
       id: form.id,
       electionYear: Number(form.electionYear),
@@ -80,34 +92,40 @@ export default function ElectionResultsDialog({
             <div className="space-y-2">
               <Label>Registered Voters</Label>
               <Input
+                type="number"
                 className="h-10"
                 value={form.registered}
                 onChange={(e) => setField("registered", e.target.value)}
-                placeholder="6767"
               />
+              {registeredVotersError ? (
+                <div className="text-xs text-red-600">{registeredVotersError}</div>
+              ) : null}
             </div>
 
             <div className="space-y-2">
               <Label>Voters Who Actually Voted</Label>
               <Input
+                type="number"
                 className="h-10"
                 value={form.voted}
                 onChange={(e) => setField("voted", e.target.value)}
-                placeholder="6767"
               />
+              {votersWhoActuallyVotedError ? (
+                <div className="text-xs text-red-600">{votersWhoActuallyVotedError}</div>
+              ) : null}
             </div>
 
             <div className="pt-2 space-y-3">
               <Button
                 onClick={submit}
-                className="h-11 w-full bg-emerald-600 hover:bg-emerald-700"
+                className="h-10 w-full bg-[#2A9D8F] hover:bg-[#1B7C70]"
               >
                 Save
               </Button>
 
               <Button
                 onClick={() => onOpenChange(false)}
-                className="h-11 w-full bg-orange-500 hover:bg-orange-600"
+                className="h-10 w-full bg-[#E76F51] hover:bg-[#D9684C]"
               >
                 Cancel
               </Button>

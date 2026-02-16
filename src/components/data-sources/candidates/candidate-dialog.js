@@ -14,7 +14,7 @@ import {
   SelectItem
 } from "@/components/ui/select";
 import { Upload } from "lucide-react";
-import { createCandidates, updateCandidate } from "@/services/candidates";
+import { createCandidates, updateCandidate } from "@/services/candidates-service";
 
 const ACCEPTED_MIME = new Set([
   "image/jpeg",
@@ -273,7 +273,7 @@ export default function CandidateDialog({
               <Button
                 onClick={submit}
                 disabled={submitting}
-                className="w-[180px] bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60"
+                className="w-[180px] bg-[#2A9D8F] hover:bg-[#1B7C70] disabled:opacity-60"
               >
                 {submitting ? "Saving..." : "Save"}
               </Button>

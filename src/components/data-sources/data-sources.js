@@ -3,10 +3,9 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import CandidateCard from "./candidate-card";
-import CandidateDialog from "./candidate-dialog";
-import VoterDataTab from "./voter-data-tab";
-import { getCandidates, deleteCandidate } from "@/services/candidates";
+import CandidateCard from "./candidates/candidate-card";
+import CandidateDialog from "./candidates/candidate-dialog";
+import { getCandidates, deleteCandidate } from "@/services/candidates-service";
 
 import {
   AlertDialog,
@@ -18,8 +17,10 @@ import {
   AlertDialogCancel,
   AlertDialogAction
 } from "@/components/ui/alert-dialog";
+import ElectionResultsTab from "./election-results/election-results-tab";
+import CandidateVotesTab from "./candidate-votes/candidate-votes-tab";
 
-export default function CandidateDataSources() {
+export default function DataSources() {
   const [tab, setTab] = useState("candidates");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -95,15 +96,21 @@ export default function CandidateDataSources() {
           <TabsList className="bg-transparent p-0">
             <TabsTrigger
               value="candidates"
-              className="rounded-none border-b-2 border-transparent px-8 py-2 text-slate-700 data-[state=active]:border-emerald-500 data-[state=active]:text-emerald-600"
+              className="rounded-none border-b-2 border-transparent px-8 py-2 text-slate-700 data-[state=active]:border-[#2A9D8F] data-[state=active]:text-[#2A9D8F]"
             >
-              Candidates
+              Candidates  
             </TabsTrigger>
             <TabsTrigger
-              value="voter-data"
-              className="rounded-none border-b-2 border-transparent px-8 py-2 text-slate-700 data-[state=active]:border-emerald-500 data-[state=active]:text-emerald-600"
+              value="election-results"
+              className="rounded-none border-b-2 border-transparent px-8 py-2 text-slate-700 data-[state=active]:border-[#2A9D8F] data-[state=active]:text-[#2A9D8F]"
             >
-              Voter Data
+              Election Results
+            </TabsTrigger>
+            <TabsTrigger
+              value="candidate-votes"
+              className="rounded-none border-b-2 border-transparent px-8 py-2 text-slate-700 data-[state=active]:border-[#2A9D8F] data-[state=active]:text-[#2A9D8F]"
+            >
+              Candidate Votes
             </TabsTrigger>
           </TabsList>
         </div>
@@ -111,7 +118,7 @@ export default function CandidateDataSources() {
         <TabsContent value="candidates" className="space-y-5">
           <Button
             onClick={onAddCandidate}
-            className="w-fit bg-emerald-600 hover:bg-emerald-700"
+            className="w-fit bg-[#2A9D8F] hover:bg-[#1B7C70]"
           >
             + Add Candidate
           </Button>
@@ -128,14 +135,19 @@ export default function CandidateDataSources() {
                   item={c}
                   onEdit={onEditCandidate}
                   onDelete={onAskDelete}
+                  showActions={true}
                 />
               ))
             )}
           </div>
         </TabsContent>
 
-        <TabsContent value="voter-data" className="space-y-5">
-          <VoterDataTab />
+        <TabsContent value="election-results" className="space-y-5">
+          <ElectionResultsTab />
+        </TabsContent>
+  
+        <TabsContent value="candidate-votes" className="space-y-5">
+          <CandidateVotesTab />
         </TabsContent>
       </Tabs>
 
@@ -167,7 +179,7 @@ export default function CandidateDataSources() {
             <AlertDialogAction
               onClick={onConfirmDelete}
               disabled={deleting}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-[#E76F51] hover:bg-[#D9684C]"
             >
               {deleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>

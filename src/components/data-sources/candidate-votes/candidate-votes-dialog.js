@@ -180,14 +180,14 @@ export default function CandidateVotesDialog({
             <div className="pt-2 space-y-3">
               <Button
                 onClick={submit}
-                className="h-11 w-full bg-emerald-600 hover:bg-emerald-700"
+                className="h-10 w-full bg-[#2A9D8F] hover:bg-[#1B7C70]"
               >
                 Save
               </Button>
 
               <Button
                 onClick={() => onOpenChange(false)}
-                className="h-11 w-full bg-orange-500 hover:bg-orange-600"
+                className="h-10 w-full bg-[#E76F51] hover:bg-[#D9684C]"
               >
                 Cancel
               </Button>
