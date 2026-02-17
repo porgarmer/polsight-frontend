@@ -33,6 +33,7 @@ import {
   updateElectionResult,
   deleteElectionResult
 } from "@/services/election-results-service";
+import { toast } from "sonner";
 
 function TableShell({ children }) {
   return (
@@ -77,18 +78,28 @@ function ActionCell({ onEdit, onDelete }) {
   );
 }
 
-export default function ElectionResultsTab() {
+export default function ElectionResultsTab({
+  rows,
+  count,
+  loading,
+  error,
+  page,
+  pageSize,
+  setPage,
+  setPageSize,
+  refetch,
+}) {
   const electionYears = useMemo(() => ["2025", "2022", "2019", "2016"], []);
 
   // data (server-side paginated)
-  const [electionResults, setElectionResults] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(null);
+  // const [electionResults, setElectionResults] = useState([]);
+  // const [totalCount, setTotalCount] = useState(0);
+  // const [loading, setLoading] = useState(true);
+  // const [loadError, setLoadError] = useState(null);
 
-  // pagination (server-side)
-  const [pageSize, setPageSize] = useState(5);
-  const [page, setPage] = useState(1);
+  // // pagination (server-side)
+  // const [pageSize, setPageSize] = useState(5);
+  // const [page, setPage] = useState(1);
 
   // dialog state
   const [erOpen, setErOpen] = useState(false);
@@ -101,35 +112,35 @@ export default function ElectionResultsTab() {
   const [deleting, setDeleting] = useState(false);
 
   // ---------- fetch ----------
-  const fetchElectionResults = useCallback(async () => {
-    try {
-      setLoading(true);
-      setLoadError(null);
+  // const fetchElectionResults = useCallback(async () => {
+  //   try {
+  //     setLoading(true);
+  //     setLoadError(null);
 
-      const res = await getElectionResults({
-        page,
-        page_size: pageSize
-      });
+  //     const res = await getElectionResults({
+  //       page,
+  //       page_size: pageSize
+  //     });
 
-      const rows = Array.isArray(res.data?.results) ? res.data.results : [];
-      setElectionResults(rows);
-      setTotalCount(Number(res.data?.count ?? 0));
-    } catch (err) {
-      console.log(err);
-      setLoadError(err);
-      setElectionResults([]);
-      setTotalCount(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, pageSize]);
+  //     const rows = Array.isArray(res.data?.results) ? res.data.results : [];
+  //     setElectionResults(rows);
+  //     setTotalCount(Number(res.data?.count ?? 0));
+  //   } catch (err) {
+  //     console.log(err);
+  //     setLoadError(err);
+  //     setElectionResults([]);
+  //     setTotalCount(0);
+  //   } finally {
+  //     setLoading(false);
+  //   } 
+  // }, [page, pageSize]);
 
-  useEffect(() => {
-    fetchElectionResults();
-  }, [fetchElectionResults]);
+  // useEffect(() => {
+  //   fetchElectionResults();
+  // }, [fetchElectionResults]);
 
   // ---------- pagination derived ----------
-  const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
+  const pageCount = Math.max(1, Math.ceil(count / pageSize));
   const currentPage = Math.min(page, pageCount);
   const canPrev = currentPage > 1;
   const canNext = currentPage < pageCount;
@@ -158,16 +169,17 @@ export default function ElectionResultsTab() {
       if (payload.id) {
         await updateElectionResult(payload.id, fd);
       } else {
-        await addElectionResult(fd);
+       
+        const res = await addElectionResult(fd);
         setPage(1); // optional: after add, jump to page 1
       }
 
-      await fetchElectionResults();
+      await refetch();
 
       setErOpen(false);
       setErEditing(null);
     } catch (err) {
-      console.log(err);
+      toast(err.response?.data.detail || err.message)
     } finally {
       setSaving(false);
     }
@@ -190,7 +202,7 @@ export default function ElectionResultsTab() {
       const nextPageCount = Math.max(1, Math.ceil(nextTotal / pageSize));
       if (page > nextPageCount) setPage(nextPageCount);
 
-      await fetchElectionResults();
+      await refetch();
 
       setDeleteOpen(false);
       setDeleteTarget(null);
@@ -236,20 +248,20 @@ export default function ElectionResultsTab() {
                     Loading...
                   </td>
                 </tr>
-              ) : loadError ? (
+              ) : error ? (
                 <tr>
                   <td className="px-4 py-4 text-red-600" colSpan={7}>
                     Failed to load election results.
                   </td>
                 </tr>
-              ) : electionResults.length === 0 ? (
+              ) : count === 0 ? (
                 <tr>
                   <td className="px-4 py-4 text-slate-500" colSpan={7}>
                     No data.
                   </td>
                 </tr>
               ) : (
-                electionResults.map((row) => {
+                rows.map((row) => {
                   const electionYear = row.election_year;
                   const registered = row.registered_voters;
                   const voted = row.voters_who_voted;

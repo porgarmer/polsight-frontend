@@ -19,24 +19,45 @@ import {
 } from "@/components/ui/alert-dialog";
 import ElectionResultsTab from "./election-results/election-results-tab";
 import CandidateVotesTab from "./candidate-votes/candidate-votes-tab";
+import { getElectionResults } from "@/services/election-results-service";
+import { getCandidateVoteData } from "@/services/candidate-votes-service";
 
 export default function DataSources() {
   const [tab, setTab] = useState("candidates");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
 
+  // Candidate states
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
 
-  // delete confirmation state
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   const familyGroups = useMemo(() => ["Chan", "Radaza"], []);
-  const relatedCandidates = useMemo(() => ["Cindi, Chan"], []);
+  //const relatedCandidates = useMemo(() => ["Cindi, Chan"], []);
 
+  
+  // Election results state 
+  const [erRows, setErRows] = useState([]);
+  const [erCount, setErCount] = useState(0);
+  const [erLoading, setErLoading] = useState(false);
+  const [erError, setErError] = useState(null);
+  const [erPage, setErPage] = useState(1);
+  const [erPageSize, setErPageSize] = useState(5);
+  const [erHasLoaded, setErHasLoaded] = useState(false)
+
+  // Candidate votes states
+  const [cvRows, setCvRows] = useState([]);
+  const [cvCount, setCvCount] = useState(0);
+  const [cvLoading, setCvLoading] = useState(false);
+  const [cvError, setCvError] = useState(null);
+  const [cvPage, setCvPage] = useState(1);
+  const [cvPageSize, setCvPageSize] = useState(5);
+  const [cvHasLoaded, setCvHasLoaded] = useState(false)
+  
   const fetchCandidates = useCallback(async () => {
     try {
       setLoading(true);
@@ -52,9 +73,64 @@ export default function DataSources() {
     }
   }, []);
 
+  const fetchElectionResults = useCallback(async () => {
+    try{
+      setErLoading(true);
+      setErError(null);
+
+      const res = await getElectionResults({
+        page: erPage,
+        page_size: erPageSize
+      });
+
+      setErRows(res.data.results ?? []);
+      setErCount(res.data.count ?? 0);
+    }catch (e){
+      console.log(e);
+      setErError(e);
+      setErRows([]);
+      setErCount(0)
+    }finally{
+      setErLoading(false)
+    }
+  }, [erPage, erPageSize])
+
+  const fetchCandidateVotes = useCallback(async () => {
+    try {
+      setCvLoading(true);
+      setCvError(null);
+      const res = await getCandidateVoteData({
+        page: cvPage,
+        page_size: cvPageSize
+      });
+      setCvRows(Array.isArray(res.data.results) ? res.data.results : []);
+      setCvCount(res.data.count ?? 0);
+    } catch (err) {
+      console.log(err);
+      setCvError(err);
+      setCvRows([]);
+      setCvCount(0)
+    } finally {
+      setCvLoading(false);
+    }
+  }, []);
+  
+
   useEffect(() => {
     fetchCandidates();
   }, [fetchCandidates]);
+
+  useEffect(() => {
+    if (!tab === "election-results") return;
+    if (erHasLoaded) return;
+    fetchElectionResults().then(() => setErHasLoaded(true))
+  }, [tab, erHasLoaded, fetchElectionResults])
+
+  useEffect(() => {
+    if (!tab === "candidate-votes") return;
+    if (cvHasLoaded) return;
+    fetchCandidateVotes().then(() => setCvHasLoaded(true))
+  }, [tab, cvHasLoaded, fetchCandidateVotes])
 
   function onAddCandidate() {
     setEditing(null);
@@ -143,11 +219,31 @@ export default function DataSources() {
         </TabsContent>
 
         <TabsContent value="election-results" className="space-y-5">
-          <ElectionResultsTab />
+          <ElectionResultsTab 
+            rows={erRows}
+            count={erCount}
+            loading={erLoading}
+            error={erError}
+            page={erPage}
+            pageSize={erPageSize}
+            setPage={setErPage}
+            setPageSize={setErPageSize}
+            refetch={fetchElectionResults}
+          />
         </TabsContent>
   
         <TabsContent value="candidate-votes" className="space-y-5">
-          <CandidateVotesTab />
+          <CandidateVotesTab
+            rows={cvRows}
+            count={cvCount}
+            loading={cvLoading}
+            error={cvError}
+            page={cvPage}
+            pageSize={cvPageSize}
+            setPage={setCvPage}
+            setPageSize={setCvPageSize}
+            refetch={fetchCandidateVotes}
+          />
         </TabsContent>
       </Tabs>
 
@@ -156,7 +252,7 @@ export default function DataSources() {
         onOpenChange={setOpen}
         initialValue={editing}
         familyGroups={familyGroups}
-        relatedCandidates={relatedCandidates}
+        //relatedCandidates={relatedCandidates}
         onRefresh={fetchCandidates}
       />
 

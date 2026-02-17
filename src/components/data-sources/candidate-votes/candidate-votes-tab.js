@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -109,12 +109,20 @@ function PaginationBar() {
   );
 }
 
-export default function CandidateVotesTab() {
+export default function CandidateVotesTab({
+  rows,
+  count,
+  loading,
+  error,
+  page,
+  pageSize,
+  setPage,
+  setPageSize,
+  refetch,
+}) {
   const electionYears = useMemo(() => ["2025", "2022", "2019", "2016"], []);
   const candidates = useMemo(() => ["Ahong Chan", "Cindi Chan"], []);
   const positions = useMemo(() => ["Mayor", "Vice Mayor", "Councilor"], []);
-
-  const [candidateVotes, setCandidateVotes] = useState(MOCK_CANDIDATE_VOTES);
 
   // candidate votes dialog state
   const [cvOpen, setCvOpen] = useState(false);
@@ -153,6 +161,18 @@ export default function CandidateVotesTab() {
           </Button>
         </div>
 
+        <div className="flex mx-auto">
+          <Select defaultValue="lapu-lapu" >
+              <SelectTrigger className="h-9 w-[170px] border-slate-600 bg-slate-800 text-white">
+              <SelectValue placeholder="Municipality" />
+              </SelectTrigger>
+              <SelectContent>
+              <SelectItem value="lapu-lapu">Lapu-Lapu City</SelectItem>
+              <SelectItem value="mandaue">Mandaue City</SelectItem>
+              </SelectContent>
+          </Select>
+        </div>
+
         <TableShell>
           <div className="w-full overflow-x-auto">
             <table className="w-full border-collapse text-xs">
@@ -175,46 +195,69 @@ export default function CandidateVotesTab() {
               </thead>
 
               <tbody>
-                {candidateVotes.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b bg-white transition-colors hover:bg-slate-100"
-                  >
-                    <td className="px-4 py-3 font-medium text-slate-700">
-                      {row.electionYear}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700">{row.candidate}</td>
-                    <td className="px-4 py-3 text-slate-700">
-                      {row.positionRan}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700">
-                      {String(row.wasIncumbent)}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700">
-                      {row.candidateVotes}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700">
-                      {row.totalVotesForPosition}
-                    </td>
+                {loading ? (
+                <tr>
+                  <td className="px-4 py-4 text-slate-500" colSpan={7}>
+                    Loading...
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td className="px-4 py-4 text-red-600" colSpan={7}>
+                    Failed to load election results.
+                  </td>
+                </tr>
+              ) : count === 0 ? (
+                <tr>
+                  <td className="px-4 py-4 text-slate-500" colSpan={7}>
+                    No data.
+                  </td>
+                </tr>
+              ) : (
+                rows.map((row) => {
+                  console.log(row)
+                  return (
+                    <tr
+                      key={row.id}
+                      className="border-b bg-white transition-colors hover:bg-slate-100"
+                    >
+                      <td className="px-4 py-3 font-medium text-slate-700">
+                        {row.election_year}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">{row.candidate_name}</td>
+                      <td className="px-4 py-3 text-slate-700">
+                        {row.position_ran}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">
+                        {String(row.was_incumbent)}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">
+                        {row.candidate_votes}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">
+                        {row.total_votes_for_position}
+                      </td>
 
-                    {/* You had 2 "Is Winner" columns in the screenshot */}
-                    <td className="px-4 py-3 text-slate-700">
-                      {String(row.isWinner)}
-                    </td>
+                      {/* You had 2 "Is Winner" columns in the screenshot */}
+                      <td className="px-4 py-3 text-slate-700">
+                        {String(row.is_winner)}
+                      </td>
 
-                    {/* placeholders, same as screenshot */}
-                    <td className="px-4 py-3 text-slate-700">67%</td>
-                    <td className="px-4 py-3 text-slate-700">67%</td>
-                    <td className="px-4 py-3 text-slate-700">67%</td>
+                      {/* placeholders, same as screenshot */}
+                      <td className="px-4 py-3 text-slate-700">{row.esi}</td>
+                      <td className="px-4 py-3 text-slate-700">{row.rpi}</td>
+                      <td className="px-4 py-3 text-slate-700">{row.normalized_vs}</td>
 
-                    <td className="px-4 py-3">
-                      <ActionCell
-                        onEdit={() => openEditCandidateVotes(row)}
-                        onDelete={() => {}}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                      <td className="px-4 py-3">
+                        <ActionCell
+                          onEdit={() => openEditCandidateVotes(row)}
+                          onDelete={() => {}}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              )};
               </tbody>
             </table>
           </div>
