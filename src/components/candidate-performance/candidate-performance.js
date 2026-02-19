@@ -386,7 +386,9 @@ export default function CandidateTrends() {
             <CardContent>
             <div className="space-y-2">
                 <h3 className="font-semibold text-gray-900">Insight (placeholder)</h3>
-                <ReactMarkdown>{markdownText}</ReactMarkdown>
+                <div className="prose prose-gray max-w-none">
+                    <ReactMarkdown>{markdownText}</ReactMarkdown>
+                </div>
             </div>
             </CardContent>
         </Card>

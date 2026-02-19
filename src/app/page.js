@@ -1,19 +1,23 @@
-import Markdown from 'react-markdown';
-import dedent from 'dedent';
+'use client'
+
+import Markdown from 'react-markdown'
 
 export default function HomePage() {
   const markdownText = `
-    # Title
-    
-    - Item 1
-    - Item 2
-    
-    **bold works**`; // removes leading whitespace from each line
+  # React Markdown Example
+
+  Some text
+  - Some other text
+  ## Subtitle
+  This has **bold** and *italic*.`;
 
   return (
     <div className="space-y-2">
       <h3 className="font-semibold text-gray-900">Insight (placeholder)</h3>
-      <Markdown>{markdownText}</Markdown>
+      
+      <div className="prose prose-gray max-w-none">
+        <Markdown>{markdownText}</Markdown>
+      </div>
     </div>
   )
 }
