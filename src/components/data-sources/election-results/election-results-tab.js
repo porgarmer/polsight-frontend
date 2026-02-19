@@ -91,16 +91,6 @@ export default function ElectionResultsTab({
 }) {
   const electionYears = useMemo(() => ["2025", "2022", "2019", "2016"], []);
 
-  // data (server-side paginated)
-  // const [electionResults, setElectionResults] = useState([]);
-  // const [totalCount, setTotalCount] = useState(0);
-  // const [loading, setLoading] = useState(true);
-  // const [loadError, setLoadError] = useState(null);
-
-  // // pagination (server-side)
-  // const [pageSize, setPageSize] = useState(5);
-  // const [page, setPage] = useState(1);
-
   // dialog state
   const [erOpen, setErOpen] = useState(false);
   const [erEditing, setErEditing] = useState(null);
@@ -110,34 +100,6 @@ export default function ElectionResultsTab({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
-
-  // ---------- fetch ----------
-  // const fetchElectionResults = useCallback(async () => {
-  //   try {
-  //     setLoading(true);
-  //     setLoadError(null);
-
-  //     const res = await getElectionResults({
-  //       page,
-  //       page_size: pageSize
-  //     });
-
-  //     const rows = Array.isArray(res.data?.results) ? res.data.results : [];
-  //     setElectionResults(rows);
-  //     setTotalCount(Number(res.data?.count ?? 0));
-  //   } catch (err) {
-  //     console.log(err);
-  //     setLoadError(err);
-  //     setElectionResults([]);
-  //     setTotalCount(0);
-  //   } finally {
-  //     setLoading(false);
-  //   } 
-  // }, [page, pageSize]);
-
-  // useEffect(() => {
-  //   fetchElectionResults();
-  // }, [fetchElectionResults]);
 
   // ---------- pagination derived ----------
   const pageCount = Math.max(1, Math.ceil(count / pageSize));
@@ -162,9 +124,9 @@ export default function ElectionResultsTab({
       setSaving(true);
 
       const fd = new FormData();
-      fd.append("election_year", String(payload.electionYear));
-      fd.append("registered_voters", String(payload.registered));
-      fd.append("voters_who_voted", String(payload.voted)); // ✅ correct key
+      fd.append("election_year", payload.electionYear);
+      fd.append("registered_voters", payload.registered);
+      fd.append("voters_who_voted", payload.voted);
 
       if (payload.id) {
         await updateElectionResult(payload.id, fd);
@@ -198,7 +160,7 @@ export default function ElectionResultsTab({
       await deleteElectionResult(deleteTarget.id);
 
       // if we deleted the last row on the last page, step back a page
-      const nextTotal = Math.max(0, totalCount - 1);
+      const nextTotal = Math.max(0, count - 1);
       const nextPageCount = Math.max(1, Math.ceil(nextTotal / pageSize));
       if (page > nextPageCount) setPage(nextPageCount);
 

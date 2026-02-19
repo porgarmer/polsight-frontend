@@ -57,12 +57,15 @@ export default function DataSources() {
   const [cvPage, setCvPage] = useState(1);
   const [cvPageSize, setCvPageSize] = useState(5);
   const [cvHasLoaded, setCvHasLoaded] = useState(false)
+  const [candidate, setCandidate] = useState("")
   
   const fetchCandidates = useCallback(async () => {
     try {
       setLoading(true);
       setLoadError(null);
+     
       const res = await getCandidates();
+      
       setCandidates(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.log(err);
@@ -101,7 +104,8 @@ export default function DataSources() {
       setCvError(null);
       const res = await getCandidateVoteData({
         page: cvPage,
-        page_size: cvPageSize
+        page_size: cvPageSize,
+        candidate: candidate
       });
       setCvRows(Array.isArray(res.data.results) ? res.data.results : []);
       setCvCount(res.data.count ?? 0);
@@ -113,7 +117,7 @@ export default function DataSources() {
     } finally {
       setCvLoading(false);
     }
-  }, []);
+  }, [candidate, cvPage, cvPageSize]);
   
 
   useEffect(() => {
@@ -121,16 +125,16 @@ export default function DataSources() {
   }, [fetchCandidates]);
 
   useEffect(() => {
-    if (!tab === "election-results") return;
+    if (tab !== "election-results") return;
     if (erHasLoaded) return;
     fetchElectionResults().then(() => setErHasLoaded(true))
   }, [tab, erHasLoaded, fetchElectionResults])
 
   useEffect(() => {
-    if (!tab === "candidate-votes") return;
-    if (cvHasLoaded) return;
-    fetchCandidateVotes().then(() => setCvHasLoaded(true))
-  }, [tab, cvHasLoaded, fetchCandidateVotes])
+    if (tab !== "candidate-votes") return;
+    //if (cvHasLoaded) return;
+    fetchCandidateVotes()
+  }, [tab, cvHasLoaded, fetchCandidateVotes, candidate])
 
   function onAddCandidate() {
     setEditing(null);
@@ -243,6 +247,9 @@ export default function DataSources() {
             setPage={setCvPage}
             setPageSize={setCvPageSize}
             refetch={fetchCandidateVotes}
+            setCandidate={setCandidate}
+            candidate={candidate}
+            candidates={candidates}
           />
         </TabsContent>
       </Tabs>

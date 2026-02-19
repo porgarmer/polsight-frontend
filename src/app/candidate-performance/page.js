@@ -1,5 +1,10 @@
-export default function CandidatePerformancePage(){
-    return (
-        <h1>This is the candidate peformance page</h1>
-    )
+import CandidateTrends from '@/components/candidate-performance/candidate-performance'
+import React from 'react'
+
+function CandidatePerformancePage() {
+  return (
+    <CandidateTrends />
+  )
 }
+
+export default CandidatePerformancePage

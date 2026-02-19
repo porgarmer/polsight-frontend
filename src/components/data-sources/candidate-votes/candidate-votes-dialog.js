@@ -17,9 +17,9 @@ export default function CandidateVotesDialog({
   open,
   onOpenChange,
   initialValue,
-  candidates = ["Ahong Chan", "Cindi Chan"],
+  candidates,
   electionYears = ["2025", "2022", "2019", "2016"],
-  positions = ["Mayor", "Vice Mayor", "Councilor"],
+  positions = ["Mayor", "Councilor"],
   onSave
 }) {
   const defaults = useMemo(
@@ -49,7 +49,7 @@ export default function CandidateVotesDialog({
   function submit() {
     onSave({
       id: form.id,
-      candidate: form.candidate,
+      candidate: Number(form.candidate),
       electionYear: Number(form.electionYear),
       positionRan: form.positionRan,
       wasIncumbent: form.wasIncumbent === "true",
@@ -79,8 +79,8 @@ export default function CandidateVotesDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {candidates.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -117,7 +117,7 @@ export default function CandidateVotesDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {positions.map((p) => (
-                    <SelectItem key={p} value={p}>
+                    <SelectItem key={p} value={p.toLocaleLowerCase()}>
                       {p}
                     </SelectItem>
                   ))}
@@ -163,7 +163,6 @@ export default function CandidateVotesDialog({
                 className="h-10"
                 value={form.candidateVotes}
                 onChange={(e) => setField("candidateVotes", e.target.value)}
-                placeholder="6767"
               />
             </div>
 
@@ -173,7 +172,6 @@ export default function CandidateVotesDialog({
                 className="h-10"
                 value={form.totalVotesForPosition}
                 onChange={(e) => setField("totalVotesForPosition", e.target.value)}
-                placeholder="6767"
               />
             </div>
 

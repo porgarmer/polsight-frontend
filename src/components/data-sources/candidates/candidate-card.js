@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash2Icon } from "lucide-react";
 
 export default function CandidateCard({ item, onEdit, onDelete, showActions }) {
+
   return (
     <Card className="shadow-sm">
       <CardContent className="flex gap-5 p-5">

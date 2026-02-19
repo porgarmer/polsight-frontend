@@ -22,7 +22,7 @@ export default function Topbar() {
                 <div className="text-xl font-semibold tracking-tight">System Name</div>
 
                 <div className="flex items-center gap-3">
-                <Select defaultValue="lapu-lapu" onValueChange={setMunicipality}>
+                {/* <Select defaultValue="lapu-lapu" onValueChange={setMunicipality}>
                     <SelectTrigger className="h-9 w-[170px] border-slate-600 bg-slate-800 text-white">
                     <SelectValue placeholder="Municipality" />
                     </SelectTrigger>
@@ -30,7 +30,7 @@ export default function Topbar() {
                     <SelectItem value="lapu-lapu">Lapu-Lapu City</SelectItem>
                     <SelectItem value="mandaue">Mandaue City</SelectItem>
                     </SelectContent>
-                </Select>
+                </Select> */}
 
                 <Select defaultValue="2025">
                     <SelectTrigger className="h-9 w-[150px] border-slate-600 bg-slate-800 text-white">
