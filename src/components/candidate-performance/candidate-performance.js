@@ -97,6 +97,7 @@ export default function CandidateTrends() {
         }
     }, [candidateVoteData])  
 
+    console.log(candidate)
     return (
         <div className="min-h-screen bg-white p-6 md:p-10">
         {/* Header */}
@@ -385,9 +386,8 @@ export default function CandidateTrends() {
             </CardHeader>
             <CardContent>
             <div className="space-y-2">
-                <h3 className="font-semibold text-gray-900">Insight (placeholder)</h3>
                 <div className="prose prose-gray max-w-none">
-                    <ReactMarkdown>{markdownText}</ReactMarkdown>
+                    <ReactMarkdown>{candidate.ai_insight}</ReactMarkdown>
                 </div>
             </div>
             </CardContent>

@@ -32,7 +32,7 @@ export default function Topbar() {
                     </SelectContent>
                 </Select> */}
 
-                <Select defaultValue="2025">
+                {/* <Select defaultValue="2025">
                     <SelectTrigger className="h-9 w-[150px] border-slate-600 bg-slate-800 text-white">
                     <SelectValue placeholder="Election year" />
                     </SelectTrigger>
@@ -42,7 +42,7 @@ export default function Topbar() {
                     <SelectItem value="2019">2019</SelectItem>
                     <SelectItem value="2016">2016</SelectItem>
                     </SelectContent>
-                </Select>
+                </Select> */}
 
                 <Button
                     variant="ghost"
