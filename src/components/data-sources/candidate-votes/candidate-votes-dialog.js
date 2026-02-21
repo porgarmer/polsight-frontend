@@ -19,7 +19,7 @@ export default function CandidateVotesDialog({
   initialValue,
   candidates,
   electionYears = ["2025", "2022", "2019", "2016"],
-  positions = ["Mayor", "Councilor"],
+  positions = ["Mayor", "Councilor", "Vice Mayor"],
   onSave
 }) {
   const defaults = useMemo(
@@ -39,8 +39,10 @@ export default function CandidateVotesDialog({
   const [form, setForm] = useState(defaults);
 
   useEffect(() => {
-    setForm(defaults);
-  }, [defaults]);
+    if (open) {
+      setForm(defaults);
+    }
+  }, [open, defaults]);
 
   function setField(k, v) {
     setForm((p) => ({ ...p, [k]: v }));

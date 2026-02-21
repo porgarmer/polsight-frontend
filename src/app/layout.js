@@ -4,7 +4,7 @@ import "./global.css";
 import AppShell from "@/components/layout/app-shell";
 
 export const metadata = {
-  title: "System Name",
+  title: "Dashboard",
   description: "Election Forecasting and Strategic Decision Support System"
 };
 

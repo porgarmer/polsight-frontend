@@ -99,7 +99,13 @@ export default function CandidateTrends() {
 
     console.log(candidate)
     return (
-        <div className="min-h-screen bg-white p-6 md:p-10">
+
+        
+        <div className="space-y-6">
+
+        {/* Main Title */}
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">Candidate Performance</h1>
+
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
             <div className="space-y-2">
@@ -123,9 +129,6 @@ export default function CandidateTrends() {
             </Select>
             </div>
         </div>
-
-        {/* Main Title */}
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Candidate Trends</h1>
 
         {/* Candidate Info Card */}
         <div className="mb-8">
@@ -314,10 +317,11 @@ export default function CandidateTrends() {
                 <Table>
                     <TableHeader>
                     <TableRow>
-                        <TableHead>Model</TableHead>
-                        <TableHead>Predicted Cat</TableHead>
-                        <TableHead>Predicted Dog</TableHead>
-                        <TableHead>Predicted Bird</TableHead>
+                        <TableHead>Prediction Model</TableHead>
+                        <TableHead>Next Election Cycle (Year)</TableHead>
+                        <TableHead>Forecast ESI</TableHead>
+                        <TableHead>Low</TableHead>
+                        <TableHead>High</TableHead>
                     </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -326,6 +330,7 @@ export default function CandidateTrends() {
                         <TableCell className="font-medium">{row.model}</TableCell>
                         <TableCell>{row.predictedCat}</TableCell>
                         <TableCell>{row.predictedDog}</TableCell>
+                        <TableCell>{row.predictedBird}</TableCell>
                         <TableCell>{row.predictedBird}</TableCell>
                         </TableRow>
                     ))}

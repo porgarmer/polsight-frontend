@@ -4,12 +4,39 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 const NAV = [
-  { label: "Dashboard", href: "/" },
-  { label: "Voter Trends", href: "/voter-trends" },
-  { label: "Candidate Performance", href: "/candidate-performance" },
-  { label: "Data Sources", href: "/data-sources" }
+  // { label: "Dashboard", 
+  //   href: "/", 
+  //   icon: "/sidebar-icons/dashboard-panel.png", 
+  //   icon_dark: "/sidebar-icons/dashboard-panel-dark.png" 
+  // },
+  
+  { label: "Voter Trends", 
+    href: "/voter-trends", 
+    icon: "/sidebar-icons/growth.png", 
+    icon_dark: "/sidebar-icons/growth-dark.png" 
+  },
+  
+  { label: "Candidate Performance", 
+    href: "/candidate-performance", 
+    icon: "/sidebar-icons/candidate.png", 
+    icon_dark: "/sidebar-icons/candidate-dark.png" 
+  },
+  
+  { label: "Candidate Comparison", 
+    href: "/candidate-comparison", 
+    icon: "/sidebar-icons/comparison.png", 
+    icon_dark: "/sidebar-icons/comparison-dark.png" 
+  },
+  
+  { label: "Data Sources", 
+    href: "/data-sources", 
+    icon: "/sidebar-icons/data-classification.png", 
+    icon_dark: "/sidebar-icons/data-classification-dark.png" 
+  }
+
 ];
 
 export default function Sidebar({ collapsed, onToggle }) {
@@ -64,12 +91,21 @@ export default function Sidebar({ collapsed, onToggle }) {
                 ].join(" ")}
               >
                 {/* Simple dot icon placeholder (swap with real icons later) */}
-                <span
+                {/* <span
                   className={[
                     "h-2.5 w-2.5 rounded-full",
                     isActive ? "bg-slate-900" : "bg-slate-300"
                   ].join(" ")}
-                />
+                /> */}
+                {
+                  <Image 
+                    src={isActive ? item.icon_dark : item.icon}
+                    width={20}
+                    height={20}
+                    alt={item.label}
+                    className="shrink-0"
+                  />
+                }
                 {!collapsed && <span className="truncate">{item.label}</span>}
               </Link>
             );

@@ -165,7 +165,7 @@ export default function CandidateVotesTab({
   candidate,
 }) {
   const electionYears = useMemo(() => ["2025", "2022", "2019", "2016"], []);
-  const positions = useMemo(() => ["Mayor", "Congressman"], []);
+  const positions = useMemo(() => ["Mayor", "Congressman", "Vice Mayor"], []);
 
   // candidate votes dialog state
   const [cvOpen, setCvOpen] = useState(false);
