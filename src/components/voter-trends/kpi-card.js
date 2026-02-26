@@ -7,7 +7,7 @@ export default function KpiCard({
   delta,
   subLabel,
   subValue,
-  subYear
+  subYear,
 }) {
   return (
     <Card className="shadow-sm">
@@ -17,7 +17,8 @@ export default function KpiCard({
         <div className="mt-2 flex items-end justify-between">
           <div className="text-4xl font-semibold tracking-tight">{value}</div>
 
-          <div className="flex items-center gap-6">
+
+          {/* <div className="flex items-center gap-6">
             <div className="flex items-center gap-1 text-sm font-medium text-emerald-600">
               <ArrowUp className="h-4 w-4" />
               {delta}
@@ -28,7 +29,7 @@ export default function KpiCard({
               <div className="text-sm font-semibold">{subValue}</div>
               <div className="text-xs text-slate-500">{subYear}</div>
             </div>
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>

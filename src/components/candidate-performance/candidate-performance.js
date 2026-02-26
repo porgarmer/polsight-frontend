@@ -11,25 +11,7 @@ import { getCandidates } from "@/services/candidates-service"
 import { getCandidateVoteData } from "@/services/candidate-votes-service"
 import { booleanFormatter, percentageFormatter, positionRanFormatter } from "@/utils/formatters"
 import  ReactMarkdown from "react-markdown";
-
-const forecastData = [
-  { model: "Actual Cat", predictedCat: 85, predictedDog: 2, predictedBird: 1 },
-  { model: "Actual Dog", predictedCat: 3, predictedDog: 78, predictedBird: 5 },
-  { model: "Actual Bird", predictedCat: 2, predictedDog: 4, predictedBird: 72 },
-  { model: "Actual Fish", predictedCat: 1, predictedDog: 0, predictedBird: 3 },
-]
-
-const markdownText = ` # React Markdown Example
-
-# Some text
-- Some other text
-
-## Subtitle
-
-### Additional info
-
-This is a [link](https://github.com/remarkjs/react-markdown)
-`;
+import { getESIForecast } from "@/services/esi-forecast-service"
 
 export default function CandidateTrends() {
 
@@ -44,6 +26,11 @@ export default function CandidateTrends() {
     const [cvError, setCvError] = useState(null);
     const [candidateVoteData, setCandidateVoteData] = useState([])
     const [latestCandidateVoteData, setLatestCandidateVoteData] = useState({})
+
+    // esi forecast table states
+    const [esiLoading, setEsiLoading] = useState(false)
+    const [esiForecast, setEsiForecast] = useState({})
+    const [esiError, setEsiError] = useState(null);
 
     const fetchCandidates = useCallback(async () => {
         try {
@@ -81,6 +68,24 @@ export default function CandidateTrends() {
         
     }, [])
 
+    const fetchEsiForecast = useCallback(async (candidate_id) => {
+        try {
+            setEsiLoading(true)
+            setEsiError(null)
+
+            const res = await getESIForecast({
+                candidate_id: candidate_id
+            })
+            setEsiForecast(res.data)
+            console.log(esiForecast)
+        } catch(err){
+            console.log(err)
+            setEsiError(err)
+        } finally {
+            setEsiLoading(false)
+        }
+    }, [])
+
     useEffect(() => {
         fetchCandidates();
     }, [fetchCandidates]);
@@ -97,7 +102,6 @@ export default function CandidateTrends() {
         }
     }, [candidateVoteData])  
 
-    console.log(candidate)
     return (
 
         
@@ -115,6 +119,7 @@ export default function CandidateTrends() {
                 onValueChange={(v) => {
                     setCandidate(v);   
                     fetchCandidateVoteData(v.name)
+                    fetchEsiForecast(v.id)
             }}>
                 <SelectTrigger className="w-[300px] bg-white">
                     <SelectValue placeholder="Select candidate" />
@@ -324,16 +329,32 @@ export default function CandidateTrends() {
                         <TableHead>High</TableHead>
                     </TableRow>
                     </TableHeader>
-                    <TableBody>
-                    {forecastData.map((row, index) => (
-                        <TableRow key={index}>
-                        <TableCell className="font-medium">{row.model}</TableCell>
-                        <TableCell>{row.predictedCat}</TableCell>
-                        <TableCell>{row.predictedDog}</TableCell>
-                        <TableCell>{row.predictedBird}</TableCell>
-                        <TableCell>{row.predictedBird}</TableCell>
+                   <TableBody>
+                    {esiLoading ? (
+                        <TableRow>
+                        <TableCell colSpan={5} className="text-center py-4">Loading forecast...</TableCell>
                         </TableRow>
-                    ))}
+                    ) : esiError ? (
+                        <TableRow>
+                        <TableCell colSpan={5} className="text-center py-4 text-red-600">
+                            Failed to load: {esiError.message}
+                        </TableCell>
+                        </TableRow>
+                    ) : esiForecast?.model ? (
+                        <TableRow>
+                        <TableCell className="font-medium">{esiForecast.model}</TableCell>
+                        <TableCell>{esiForecast.election_year}</TableCell>
+                        <TableCell>{esiForecast.predicted_value}</TableCell>
+                        <TableCell>{esiForecast.lower_bound}</TableCell>
+                        <TableCell>{esiForecast.upper_bound}</TableCell>
+                        </TableRow>
+                    ) : (
+                        <TableRow>
+                        <TableCell colSpan={5} className="text-center py-4 text-slate-500">
+                            Select a candidate to view forecast
+                        </TableCell>
+                        </TableRow>
+                    )}
                     </TableBody>
                 </Table>
                 </CardContent>
@@ -385,18 +406,34 @@ export default function CandidateTrends() {
         </div>
 
         {/* AI Insight Summary */}
-        <Card>
-            <CardHeader>
-            <CardTitle className="text-2xl">AI Insight Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-            <div className="space-y-2">
-                <div className="prose prose-gray max-w-none">
-                    <ReactMarkdown>{candidate.ai_insight}</ReactMarkdown>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <Card>
+                    <CardHeader>
+                    <CardTitle className="text-2xl">AI Insight Summary</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                    <div className="space-y-2">
+                        <div className="prose prose-gray max-w-none">
+                            <ReactMarkdown>{candidate.ai_insight}</ReactMarkdown>
+                        </div>
+                    </div>
+                    </CardContent>
+                </Card>
+                
+                {/* Social Media Activity */}
+                <Card>
+                    <CardHeader>
+                    <CardTitle className="text-2xl">Social Media Activity</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                    <div className="space-y-2">
+                        <div className="prose prose-gray max-w-none">
+                            <ReactMarkdown>{candidate.social_media_activity}</ReactMarkdown>
+                        </div>
+                    </div>
+                    </CardContent>
+                </Card>
             </div>
-            </CardContent>
-        </Card>
         </div>
     )
 }

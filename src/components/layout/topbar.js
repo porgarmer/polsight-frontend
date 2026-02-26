@@ -18,6 +18,9 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown"
+import dedent from "dedent";
+import remarkGfm from "remark-gfm";
 
 export default function Topbar() {
   const [municipality, setMunicipality] = useState("lapu-lapu");
@@ -39,7 +42,7 @@ export default function Topbar() {
             </SelectContent>
           </Select> */}
 
-          <Select defaultValue="2025">
+          <Select defaultValue="2025" disabled>
             <SelectTrigger className="h-9 w-[150px] border-slate-600 bg-slate-800 text-white">
               <SelectValue placeholder="Election year" />
             </SelectTrigger>
@@ -73,26 +76,180 @@ export default function Topbar() {
                 </p>
 
                 <div className="space-y-3">
+
                   <MetricItem
-                    title="Vote Share Percentage"
-                    desc="The proportion of total votes received by the candidate relative to the total votes cast in the municipality."
+                    title="Electoral Strength Index (ESI)"
+                    desc={dedent`
+                **What it is**  
+                A composite index representing a candidate’s overall electoral strength across elections.
+
+                **Formula (simplified)**  
+                ESI =  
+                - 50% Vote Share  
+                - 30% Relative Performance Index  
+                - 20% Turnout Adjustment Factor  
+
+                **Typical Range**  
+                - Usually between **0.30 – 1.10**  
+                - Most candidates fall between **0.40 – 0.85**
+
+                **How to Interpret**
+
+                | ESI Value | Meaning |
+                |------------|---------|
+                | < 0.40 | Weak electoral presence |
+                | 0.40 – 0.60 | Moderate / developing strength |
+                | 0.60 – 0.80 | Strong and competitive |
+                | > 0.80 | Very strong or dominant |
+
+                **Important**  
+                - ESI is **not a percentage**  
+                - ESI is **not a probability of winning**  
+                - Higher ESI = stronger historical performance
+                `}
                   />
+
                   <MetricItem
-                    title="Incumbency Status"
-                    desc="Indicates whether the candidate currently holds the office they are running for. Incumbents often have higher visibility."
+                    title="Vote Share (VS)"
+                    desc={dedent`
+                **What it is**  
+                The proportion of valid votes a candidate received in a specific contest.
+
+                **Formula**  
+                Vote Share = Candidate Votes ÷ Total Valid Votes for that Position
+
+                **Range**  
+                0 to 1 (or 0% to 100%)
+
+                **Interpretation**
+
+                | Vote Share | Meaning |
+                |-------------|---------|
+                | < 0.30 | Weak support |
+                | 0.30 – 0.50 | Competitive |
+                | > 0.50 | Majority support |
+                | ~1.00 | Uncontested or dominant |
+                `}
                   />
+
                   <MetricItem
-                    title="Social Sentiment Score"
-                    desc="An AI-driven analysis of social media mentions, rated from Negative (-100) to Positive (+100)."
+                    title="Relative Performance Index (RPI)"
+                    desc={dedent`
+                **What it is**  
+                Measures how close a candidate’s vote share is to the winner’s vote share in the same contest.
+
+                **Formula**  
+                RPI = Candidate Vote Share ÷ Winning Vote Share
+
+                **Range**  
+                0 to 1  
+                (Winner always has **1.00**)
+
+                **Interpretation**
+
+                | RPI | Meaning |
+                |------|---------|
+                | 1.00 | Winner / top performer |
+                | 0.80 – 0.99 | Highly competitive |
+                | 0.50 – 0.79 | Moderately competitive |
+                | < 0.50 | Weak relative performance |
+
+                RPI measures competitiveness, not popularity alone.
+                `}
                   />
+
                   <MetricItem
-                    title="Engagement Rate"
-                    desc="Measures public interaction (likes, shares, comments) per campaign post relative to follower count."
+                    title="Turnout Rate"
+                    desc={dedent`
+                **What it is**  
+                The proportion of registered voters who cast a ballot.
+
+                **Formula**  
+                Turnout = Voters Who Voted ÷ Registered Voters
+
+                **Typical Range**  
+                0.60 – 0.90 in most municipalities
+
+                **Interpretation**
+
+                | Turnout | Meaning |
+                |----------|---------|
+                | < 0.60 | Low participation |
+                | 0.60 – 0.75 | Moderate participation |
+                | > 0.75 | High participation |
+                `}
                   />
+
                   <MetricItem
-                    title="Campaign Spend Efficiency"
-                    desc="Estimated votes gained per monetary unit spent on campaign activities."
+                    title="Turnout Adjustment Factor (TAF)"
+                    desc={dedent`
+                **What it is**  
+                Compares current election turnout to the historical average turnout.
+
+                **Formula**  
+                TAF = Current Turnout ÷ Historical Average Turnout
+
+                **Typical Range**  
+                0.80 – 1.20
+
+                **Interpretation**
+
+                | TAF | Meaning |
+                |------|---------|
+                | ≈ 1.00 | Normal turnout |
+                | > 1.00 | Higher-than-usual turnout |
+                | < 1.00 | Lower-than-usual turnout |
+
+                TAF provides context, not causation.
+                `}
                   />
+
+                  <MetricItem
+                    title="Turnout Volatility (σ)"
+                    desc={dedent`
+                **What it is**  
+                The sample standard deviation of turnout across elections.  
+                Measures how stable voter participation is over time.
+
+                **Typical Range**  
+                0.00 – 0.08
+
+                **Interpretation**
+
+                | Volatility | Meaning |
+                |------------|---------|
+                | < 0.03 | Very stable participation |
+                | 0.03 – 0.06 | Moderate fluctuation |
+                | > 0.06 | Unstable participation environment |
+                `}
+                  />
+
+                  <MetricItem
+                    title="Forecasted ESI"
+                    desc={dedent`
+                **What it is**  
+                Projected next-cycle ESI based on historical trend using linear regression.
+
+                **Important**  
+                - It reflects continuation of observed trends  
+                - It is **not a guaranteed outcome**
+                `}
+                  />
+
+                  <MetricItem
+                    title="Forecast Range"
+                    desc={dedent`
+                **What it is**  
+                An uncertainty interval around the forecasted ESI based on historical variability.
+
+                **Interpretation**
+                - Narrow range → Stable historical trend  
+                - Wide range → High historical variability  
+
+                This reflects uncertainty, not best- or worst-case scenarios.
+                `}
+                  />
+
                 </div>
 
                 <div className="mt-6 flex justify-end">
@@ -116,7 +273,9 @@ function MetricItem({ title, desc }) {
       <h4 className="font-semibold text-slate-900 dark:text-slate-100">
         {title}
       </h4>
-      <p className="mt-1 text-slate-600 dark:text-slate-400">{desc}</p>
+      <div className="prose prose-gray max-w-none">
+        <ReactMarkdown remarkPlugins={remarkGfm}>{desc}</ReactMarkdown>
+      </div>
     </div>
   );
 }

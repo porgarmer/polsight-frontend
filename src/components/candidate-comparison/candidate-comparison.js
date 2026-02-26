@@ -11,6 +11,7 @@ import { getCandidates } from "@/services/candidates-service"
 import { getCandidateVoteData } from "@/services/candidate-votes-service"
 import { booleanFormatter, percentageFormatter, positionRanFormatter } from "@/utils/formatters"
 import  ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm"
 
 const forecastData = [
   { model: "Actual Cat", predictedCat: 85, predictedDog: 2, predictedBird: 1 },
@@ -251,12 +252,12 @@ export default function CandidateComparisonPage() {
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
-                        domain={[0, 1.2]}
+                        domain={[0, 1]}
                         />
                         <Tooltip />
                         <Line 
                         type="monotone" 
-                        dataKey="rpi" 
+                        dataKey="esi" 
                         stroke="#2563eb" 
                         strokeWidth={2}
                         dot={{ fill: "#2563eb", r: 4 }}
@@ -276,7 +277,7 @@ export default function CandidateComparisonPage() {
                     <CardContent>
                     <div className="space-y-2">
                         <div className="prose prose-gray max-w-none">
-                            <ReactMarkdown>{candidate.achievement}</ReactMarkdown>
+                            <ReactMarkdown remarkPlugins={remarkGfm}>{candidate.achievement}</ReactMarkdown>
                         </div>
                     </div>
                     </CardContent>
@@ -289,7 +290,35 @@ export default function CandidateComparisonPage() {
                     <CardContent>
                     <div className="space-y-2">
                         <div className="prose prose-gray max-w-none">
-                            <ReactMarkdown>{candidate2.achievement}</ReactMarkdown>
+                            <ReactMarkdown remarkPlugins={remarkGfm}>{candidate2.achievement}</ReactMarkdown>
+                        </div>
+                    </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <Card>
+                    <CardHeader>
+                    <CardTitle className="text-2xl">{candidate.name}'s Social Media Activity</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                    <div className="space-y-2">
+                        <div className="prose prose-gray max-w-none">
+                            <ReactMarkdown remarkPlugins={remarkGfm}>{candidate.social_media_activity}</ReactMarkdown>
+                        </div>
+                    </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                    <CardTitle className="text-2xl">{candidate2.name}'s Social Media Activity</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                    <div className="space-y-2">
+                        <div className="prose prose-gray max-w-none">
+                            <ReactMarkdown remarkPlugins={remarkGfm}>{candidate2.social_media_activity}</ReactMarkdown>
                         </div>
                     </div>
                     </CardContent>

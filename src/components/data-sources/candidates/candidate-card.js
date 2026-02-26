@@ -25,8 +25,11 @@ export default function CandidateCard({ item, onEdit, onDelete, showActions }) {
             </div>
 
             <div className="mt-1 text-sm text-slate-900">
-              <span className="font-semibold">Positions ran:</span>{" "}
-              {item.positionsRan}
+              <span className="font-semibold">Positions held:</span>{" "}
+              {item.positions_held}
+              {
+                console.log(item.positions_held)
+              }
             </div>
 
             {/* <div className="mt-2 text-sm text-slate-500">
