@@ -12,6 +12,7 @@ import { getCandidateVoteData } from "@/services/candidate-votes-service"
 import { booleanFormatter, percentageFormatter, positionRanFormatter } from "@/utils/formatters"
 import  ReactMarkdown from "react-markdown";
 import { getESIForecast } from "@/services/esi-forecast-service"
+import remarkGfm from "remark-gfm"
 
 export default function CandidateTrends() {
 
@@ -428,7 +429,7 @@ export default function CandidateTrends() {
                     <CardContent>
                     <div className="space-y-2">
                         <div className="prose prose-gray max-w-none">
-                            <ReactMarkdown>{candidate.social_media_activity}</ReactMarkdown>
+                            <ReactMarkdown remarkPlugins={remarkGfm}>{candidate.social_media_activity}</ReactMarkdown>
                         </div>
                     </div>
                     </CardContent>
