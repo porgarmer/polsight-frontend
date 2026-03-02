@@ -21,10 +21,29 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown"
 import dedent from "dedent";
 import remarkGfm from "remark-gfm";
+import { logout } from "@/services/auth-service";
+import { useRouter } from "next/navigation";
 
 export default function Topbar() {
   const [municipality, setMunicipality] = useState("lapu-lapu");
+  const [loading, setLoading] = useState(false);
   console.log(municipality);
+
+  const router = useRouter()
+
+const handleLogout = async () => {
+  try {
+    // Call backend logout to clear cookies
+    await logout()
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Continue with client-side cleanup even if backend call fails
+  } finally {
+    
+    // Redirect to login (client-side navigation)
+    router.replace('/login');
+  }
+};
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-[#1F3A5F] text-white">
@@ -260,6 +279,13 @@ export default function Topbar() {
               </div>
             </DialogContent>
           </Dialog>
+      
+          <Button
+            onClick={handleLogout}
+            disabled={loading ? true : false}
+          >
+            Logout
+          </Button>
         </div>
       </div>
     </header>

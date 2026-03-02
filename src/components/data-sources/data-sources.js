@@ -58,7 +58,7 @@ export default function DataSources() {
   const [cvPageSize, setCvPageSize] = useState(5);
   const [cvHasLoaded, setCvHasLoaded] = useState(false)
   const [candidate, setCandidate] = useState("")
-  
+
   const fetchCandidates = useCallback(async () => {
     try {
       setLoading(true);

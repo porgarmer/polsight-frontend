@@ -90,13 +90,6 @@ export default function Sidebar({ collapsed, onToggle }) {
                     : "text-slate-100 hover:bg-slate-700/70"
                 ].join(" ")}
               >
-                {/* Simple dot icon placeholder (swap with real icons later) */}
-                {/* <span
-                  className={[
-                    "h-2.5 w-2.5 rounded-full",
-                    isActive ? "bg-slate-900" : "bg-slate-300"
-                  ].join(" ")}
-                /> */}
                 {
                   <Image 
                     src={isActive ? item.icon_dark : item.icon}
