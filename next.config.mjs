@@ -4,10 +4,17 @@ const nextConfig = {
 
   async rewrites() {
     return [
+      // If the incoming request already includes /api/v1/, don't add v1 again
+      {
+        source: "/api/v1/:path*",
+        destination:
+          "https://polsight-backend-production.up.railway.app/api/v1/:path*",
+      },
+      // Normal proxy route
       {
         source: "/api/:path*",
-        // IMPORTANT: include your backend API prefix here
-        destination: "https://polsight-backend-production.up.railway.app/api/v1/:path*",
+        destination:
+          "https://polsight-backend-production.up.railway.app/api/v1/:path*",
       },
     ];
   },
