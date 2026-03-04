@@ -27,7 +27,6 @@ import { useRouter } from "next/navigation";
 export default function Topbar() {
   const [municipality, setMunicipality] = useState("lapu-lapu");
   const [loading, setLoading] = useState(false);
-  console.log(municipality);
 
   const router = useRouter()
 

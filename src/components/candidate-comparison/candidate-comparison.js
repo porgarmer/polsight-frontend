@@ -87,8 +87,8 @@ export default function CandidateComparisonPage() {
             })
             setCandidateVoteData(Array.isArray(res.data.results) ? res.data.results : []);
         }catch (err){
-            console.log(err)
-            setCvError(err)
+            console.log(err);
+            setCvError(err);
             setCandidateVoteData([])
         }finally{
             setCvLoading(false)

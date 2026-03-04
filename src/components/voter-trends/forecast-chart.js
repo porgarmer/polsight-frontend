@@ -32,9 +32,6 @@ export default function ForecastChart({
     turnout: "#06B6D4"
   };
 
-  console.log("📊 Raw data:", data);
-  console.log("📊 Chart data (reversed):", chartData);
-
   return (
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">

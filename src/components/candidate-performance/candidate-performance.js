@@ -41,7 +41,6 @@ export default function CandidateTrends() {
             const res = await getCandidates();
             setCandidates(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
-            console.log(err);
             setCandidatesError(err);
             setCandidates([]);
         } finally {
@@ -60,7 +59,6 @@ export default function CandidateTrends() {
             })
             setCandidateVoteData(Array.isArray(res.data.results) ? res.data.results : []);
         }catch (err){
-            console.log(err)
             setCvError(err)
             setCandidateVoteData([])
         }finally{
@@ -78,7 +76,6 @@ export default function CandidateTrends() {
                 candidate_id: candidate_id
             })
             setEsiForecast(res.data)
-            console.log(esiForecast)
         } catch(err){
             console.log(err)
             setEsiError(err)
