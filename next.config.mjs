@@ -8,13 +8,13 @@ const nextConfig = {
       {
         source: "/api/v1/:path*",
         destination:
-          "https://polsight-backend-production.up.railway.app/api/v1/:path*",
+          "https://polsight-backend-production.up.railway.app/api/v1/:path*/",
       },
       // Normal proxy route
       {
         source: "/api/:path*",
         destination:
-          "https://polsight-backend-production.up.railway.app/api/v1/:path*",
+          "https://polsight-backend-production.up.railway.app/api/v1/:path*/",
       },
     ];
   },
