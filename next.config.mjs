@@ -7,7 +7,7 @@ const nextConfig = {
       {
         source: "/api/:path*",
         // IMPORTANT: include your backend API prefix here
-        destination: "https://polsight-backend-production.up.railway.app/api/:path*",
+        destination: "https://polsight-backend-production.up.railway.app/api/v1/:path*",
       },
     ];
   },
