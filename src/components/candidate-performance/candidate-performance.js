@@ -412,7 +412,7 @@ export default function CandidateTrends() {
                     <CardContent>
                     <div className="space-y-2">
                         <div className="prose prose-gray max-w-none">
-                            <ReactMarkdown>{candidate.ai_insight}</ReactMarkdown>
+                            <ReactMarkdown remarkPlugins={remarkGfm}>{candidate.ai_insight}</ReactMarkdown>
                         </div>
                     </div>
                     </CardContent>
